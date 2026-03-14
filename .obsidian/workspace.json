@@ -1,0 +1,224 @@
+{
+  "main": {
+    "id": "f53205e5ecc3312e",
+    "type": "split",
+    "children": [
+      {
+        "id": "6fce234344cfb377",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "c9a60173d71650d8",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "vault/research/idea-recommendation.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "idea-recommendation"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "1532ff592400bd23",
+    "type": "split",
+    "children": [
+      {
+        "id": "d29d7a5d1fd692be",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "5f676b7db4e35ed5",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "d5ad911bc374285f",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "f5005bdc3716cc41",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "22d6f2f9f575f86d",
+    "type": "split",
+    "children": [
+      {
+        "id": "be406f8104ec9312",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "64821f2fea52ff39",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "vault/research/idea-recommendation.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for idea-recommendation"
+            }
+          },
+          {
+            "id": "39a7631fe4e40e50",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "vault/research/idea-recommendation.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from idea-recommendation"
+            }
+          },
+          {
+            "id": "1cd4df50225ab007",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "df387df71c7501de",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "51c0a44643572746",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "vault/research/idea-recommendation.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of idea-recommendation"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "c9a60173d71650d8",
+  "lastOpenFiles": [
+    "vault/decisions/adr-002-four-dimensions.md",
+    "vault/decisions/adr-001-agent-over-pipeline.md",
+    "vault/research/data-strategy.md",
+    "vault/research/hackathon-winners-analysis.md",
+    "vault/research/idea-recommendation.md",
+    "vault/research/gpt-oss-api.md",
+    "vault/research/gpt-oss-capabilities.md",
+    "vault/research/ai-models.md",
+    "vault/specs/problem.md",
+    "vault/00_START_HERE.md",
+    "vault/agent-workspace/scratch.md",
+    "vault/architecture/api.md",
+    "vault/architecture/data-model.md",
+    "vault/architecture/architecture-map.md",
+    "vault/decisions/adr-template.md",
+    "vault/research/tools.md",
+    "vault/tasks/sprint.md",
+    "vault/tasks/completed.md",
+    "vault/tasks/backlog.md",
+    "vault/specs/success-metrics.md",
+    "vault/assets",
+    "vault/agent-workspace/generated",
+    "vault/agent-workspace/summaries",
+    "vault/agent-workspace",
+    "vault/build-log/day2.md",
+    "vault/build-log/day1.md",
+    "vault/build-log",
+    "vault/decisions",
+    "vault/tasks",
+    "vault/research/experiments",
+    "vault/research",
+    "vault/specs/requirements.md",
+    "vault/architecture/system-design.md",
+    "vault/architecture",
+    "vault/project-context.md"
+  ]
+}
