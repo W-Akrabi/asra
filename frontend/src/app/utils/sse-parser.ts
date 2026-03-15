@@ -1,6 +1,71 @@
+// --------------------------------------------------------------------------- //
+// Backend → frontend report normalizer
+//
+// The backend returns scores on a 0–10 scale with a `dimensions` array.
+// The frontend SustainabilityReport type expects flat 0–100 fields.
+// This function bridges the gap so nothing else needs to change.
+// --------------------------------------------------------------------------- //
+
+type BackendDimension = {
+  name: string;
+  score: number;
+  confidence?: string;
+  evidence?: Array<{ claim: string; source: string; url?: string | null }>;
+};
+
+type BackendReport = {
+  product?: string;
+  product_name?: string;
+  brand?: string;
+  category?: string;
+  overall_score?: number;
+  carbon_score?: number;
+  dimensions?: BackendDimension[];
+  summary?: string;
+  alternatives?: Array<{ name: string; brand: string; reason: string }>;
+  [key: string]: unknown;
+};
+
+function dimScore(name: string, dims: BackendDimension[]): number {
+  const d = dims.find((d) => d.name.toLowerCase() === name.toLowerCase());
+  return d ? Math.round(d.score * 10) : 0;
+}
+
+function dimEvidence(name: string, dims: BackendDimension[]): string[] {
+  const d = dims.find((d) => d.name.toLowerCase() === name.toLowerCase());
+  return (d?.evidence ?? []).map((e) => e.claim);
+}
+
+function normalizeReport(raw: BackendReport): BackendReport {
+  // Already in frontend format — nothing to do
+  if (raw.carbon_score !== undefined || raw.product_name !== undefined) return raw;
+
+  const dims = raw.dimensions ?? [];
+
+  return {
+    product_name: raw.product ?? "",
+    brand: raw.brand ?? "Unknown",
+    category: raw.category ?? "",
+    overall_score: Math.round((raw.overall_score ?? 0) * 10),
+    carbon_score: dimScore("carbon", dims),
+    water_score: dimScore("water", dims),
+    deforestation_score: dimScore("deforestation", dims),
+    labor_score: dimScore("labor", dims),
+    summary: raw.summary ?? "",
+    alternatives: raw.alternatives ?? [],
+    evidence: {
+      carbon: dimEvidence("carbon", dims),
+      water: dimEvidence("water", dims),
+      deforestation: dimEvidence("deforestation", dims),
+      labor: dimEvidence("labor", dims),
+    },
+  };
+}
+
 /**
  * Parse a single SSE event block from text.
  * Supports "data: {json}" format used by the backend.
+ * Normalizes "done" event data from backend format to frontend format.
  */
 export function parseSSEEvent(
   block: string
@@ -18,6 +83,9 @@ export function parseSSEEvent(
   try {
     const parsed = JSON.parse(payload);
     if (parsed && typeof parsed.type === "string") {
+      if (parsed.type === "done" && parsed.data && typeof parsed.data === "object") {
+        return { ...parsed, data: normalizeReport(parsed.data as BackendReport) };
+      }
       return parsed;
     }
   } catch {
