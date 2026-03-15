@@ -272,6 +272,8 @@ function AppContent() {
     }
   };
 
+  const hasActiveResults = isSearching || events.length > 0 || !!report;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 relative overflow-hidden">
       {/* Animated background elements */}
@@ -385,6 +387,18 @@ function AppContent() {
               Discover the environmental and social impact of products with AI-powered analysis
             </p>
           </div>
+
+          {!showResults && hasActiveResults && (
+            <div className="mt-6 flex items-center justify-center">
+              <Button
+                variant="outline"
+                onClick={() => setShowResults(true)}
+                className="rounded-full border-border/60 bg-background/70 px-5 text-sm"
+              >
+                {isSearching ? "Analysis running — View results" : "View latest results"}
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 

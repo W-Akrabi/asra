@@ -41,7 +41,7 @@ export function LiveResearchFeed({ events, isSearching }: LiveResearchFeedProps)
         {isSearching && <Loader2 className="w-5 h-5 animate-spin text-primary" />}
       </div>
 
-      <div className="flex-1 overflow-y-auto space-y-3 pr-2">
+      <div className="flex-1 overflow-y-auto no-scrollbar space-y-3 pr-2">
         {visibleEvents.map((event, idx) => (
           <div
             key={`${event.type}-${idx}`}
