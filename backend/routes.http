@@ -1,3 +1,7 @@
+# You can use this file to test out the different routes.
+# Download the VS Code REST Client Extension for the best experience
+# Link: https://marketplace.visualstudio.com/items?itemName=humao.rest-client
+
 @baseUrl = http://localhost:8000
 
 ### Health check
@@ -11,3 +15,6 @@ Accept: text/event-stream
 {
   "product": "Nutella"
 }
+
+### Open Food Facts search by name
+GET {{baseUrl}}/openfoodfacts/search?name=Nutella
