@@ -1,6 +1,9 @@
 import httpx
+import asyncio
+import os
 import json
 from bs4 import BeautifulSoup
+from openfood import async_search_product
 
 # --------------------------------------------------------------------------- #
 # Ingredient impact lookup table (anchor facts for the agent)
@@ -42,46 +45,92 @@ def lookup_ingredient_impact(ingredient: str) -> dict:
             return {"ingredient": ingredient, "found": True, "impacts": impact}
     return {"ingredient": ingredient, "found": False, "impacts": {}}
 
+# Depreciated, not used currently.
+async def fetch_openfoodfacts(product_name: str) -> dict:
+    """Search Open Food Facts for product data using API v2."""
 
-def fetch_openfoodfacts(product_name: str) -> dict:
-    """Search Open Food Facts for product data."""
-    try:
-        url = "https://world.openfoodfacts.org/cgi/search.pl"
-        params = {
-            "search_terms": product_name,
-            "search_simple": 1,
-            "action": "process",
-            "json": 1,
-            "page_size": 3,
-        }
-        resp = httpx.get(url, params=params, timeout=8)
-        data = resp.json()
-        products = data.get("products", [])
-        if not products:
-            return {"found": False}
+    base_url = os.getenv("OPENFOODFACTS_BASE_URL", "https://world.openfoodfacts.org")
+    url = f"{base_url}/api/v2/search"
+    params = {
+        "search_terms": product_name,
+        "page_size": 3,
+        "fields": ",".join(
+            [
+                "product_name",
+                "brands",
+                "categories",
+                "ingredients_text",
+                "ecoscore_grade",
+                "nutriscore_grade",
+                "packaging",
+                "countries",
+            ]
+        ),
+    }
+    timeout = httpx.Timeout(12.0, connect=4.0)
+    headers = {
+        "User-Agent": os.getenv(
+            "OPENFOODFACTS_USER_AGENT",
+            "EcoLens/0.1 (contact: dev@example.com)",
+        )
+    }
+    if base_url.endswith(".net"):
+        headers["Authorization"] = "Basic b2ZmOm9mZg=="
+    last_error: str | None = None
+    for attempt in range(2):
+        try:
+            async with httpx.AsyncClient(timeout=timeout) as client:
+                resp = await client.get(url, params=params, headers=headers)
+                resp.raise_for_status()
+                data = resp.json()
+                products = data.get("products", [])
+                if not products:
+                    return {"found": False}
 
-        p = products[0]
-        return {
-            "found": True,
-            "product_name": p.get("product_name", product_name),
-            "brand": p.get("brands", "Unknown"),
-            "categories": p.get("categories", ""),
-            "ingredients_text": p.get("ingredients_text", ""),
-            "ecoscore_grade": p.get("ecoscore_grade", None),
-            "nutriscore_grade": p.get("nutriscore_grade", None),
-            "packaging": p.get("packaging", ""),
-            "countries": p.get("countries", ""),
-        }
-    except Exception as e:
-        return {"found": False, "error": str(e)}
+                p = products[0]
+                return {
+                    "found": True,
+                    "product_name": p.get("product_name", product_name),
+                    "brand": p.get("brands", "Unknown"),
+                    "categories": p.get("categories", ""),
+                    "ingredients_text": p.get("ingredients_text", ""),
+                    "ecoscore_grade": p.get("ecoscore_grade", None),
+                    "nutriscore_grade": p.get("nutriscore_grade", None),
+                    "packaging": p.get("packaging", ""),
+                    "countries": p.get("countries", ""),
+                }
+        except Exception as e:
+            last_error = str(e)
+            await asyncio.sleep(0.3 * (attempt + 1))
+    return {"found": False, "error": last_error or "Unknown error"}
 
 
-def fetch_page(url: str, max_chars: int = 3000) -> dict:
+async def identify_product(product_name: str) -> dict:
+    """Resolve a product name to structured info using Open Food Facts."""
+    off = await async_search_product(product_name)
+
+    if not off.get("found"):
+        return {"found": False, "source": "openfoodfacts", "product_name": product_name}
+    ingredients_text = off.get("ingredients_text", "")
+    ingredients = _parse_ingredients(ingredients_text)
+    return {
+        "found": True,
+        "source": "openfoodfacts",
+        "product_name": off.get("product_name", product_name),
+        "brand": off.get("brand", off.get("brands", "Unknown")),
+        "category": off.get("categories", ""),
+        "ingredients_text": ingredients_text,
+        "ingredients": ingredients,
+    }
+
+
+async def fetch_page(url: str, max_chars: int = 3000) -> dict:
     """Fetch and clean a web page, returning plain text."""
     try:
         headers = {"User-Agent": "Mozilla/5.0 (compatible; EcoLens/1.0)"}
-        resp = httpx.get(url, headers=headers, timeout=10, follow_redirects=True)
-        soup = BeautifulSoup(resp.text, "html.parser")
+        async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
+            resp = await client.get(url, headers=headers)
+            soup = BeautifulSoup(resp.text, "html.parser")
         for tag in soup(["script", "style", "nav", "footer", "header"]):
             tag.decompose()
         text = soup.get_text(separator=" ", strip=True)
@@ -91,11 +140,69 @@ def fetch_page(url: str, max_chars: int = 3000) -> dict:
         return {"url": url, "content": "", "success": False, "error": str(e)}
 
 
+async def search_web(query: str, max_results: int = 5) -> dict:
+    """Lightweight web search using DuckDuckGo HTML results."""
+    try:
+        params = {"q": query}
+        async with httpx.AsyncClient(timeout=10) as client:
+            resp = await client.get("https://duckduckgo.com/html/", params=params)
+            soup = BeautifulSoup(resp.text, "html.parser")
+        results = []
+        for a in soup.select("a.result__a")[:max_results]:
+            title = a.get_text(strip=True)
+            url = a.get("href")
+            if title and url:
+                results.append({"title": title, "url": url})
+        return {"query": query, "results": results, "success": True}
+    except Exception as e:
+        return {"query": query, "results": [], "success": False, "error": str(e)}
+
+
+async def find_alternatives(product: str, category: str | None = None) -> dict:
+    """Find alternative products via web search."""
+    q = f"sustainable alternatives to {product}"
+    if category:
+        q = f"sustainable {category} alternatives to {product}"
+    return await search_web(q, max_results=5)
+
+
 # --------------------------------------------------------------------------- #
 # Tool schemas for GPT-OSS function calling
 # --------------------------------------------------------------------------- #
 
 TOOL_SCHEMAS = [
+    {
+        "type": "function",
+        "function": {
+            "name": "identify_product",
+            "description": (
+                "Resolve a product name into structured product info (brand, category, ingredients). "
+                "Uses Open Food Facts as the primary source."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "product_name": {"type": "string", "description": "The product name to identify."}
+                },
+                "required": ["product_name"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "search_web",
+            "description": "Search the web for sources relevant to sustainability research.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "Search query."},
+                    "max_results": {"type": "integer", "description": "Max results to return."},
+                },
+                "required": ["query"],
+            },
+        },
+    },
     {
         "type": "function",
         "function": {
@@ -133,6 +240,21 @@ TOOL_SCHEMAS = [
     {
         "type": "function",
         "function": {
+            "name": "find_alternatives",
+            "description": "Find more sustainable alternative products.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "product": {"type": "string", "description": "Product name."},
+                    "category": {"type": "string", "description": "Optional category."},
+                },
+                "required": ["product"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "fetch_page",
             "description": (
                 "Fetch and extract text content from a web URL. "
@@ -150,14 +272,46 @@ TOOL_SCHEMAS = [
 ]
 
 
-def execute_tool(name: str, arguments: dict) -> str:
+async def execute_tool(name: str, arguments: dict) -> str:
     """Dispatch a tool call by name and return JSON string result."""
-    if name == "lookup_ingredient_impact":
+    if name == "identify_product":
+        result = await identify_product(arguments["product_name"])
+    elif name == "search_web":
+        result = await search_web(arguments["query"], arguments.get("max_results", 5))
+    elif name == "find_alternatives":
+        result = await find_alternatives(arguments["product"], arguments.get("category"))
+    elif name == "lookup_ingredient_impact":
         result = lookup_ingredient_impact(arguments["ingredient"])
     elif name == "fetch_openfoodfacts":
-        result = fetch_openfoodfacts(arguments["product_name"])
+        result = await fetch_openfoodfacts(arguments["product_name"])
     elif name == "fetch_page":
-        result = fetch_page(arguments["url"])
+        result = await fetch_page(arguments["url"])
     else:
         result = {"error": f"Unknown tool: {name}"}
     return json.dumps(result)
+
+
+def _parse_ingredients(ingredients_text: str, limit: int = 10) -> list[str]:
+    if not ingredients_text:
+        return []
+    cleaned = (
+        ingredients_text.replace("(", ",")
+        .replace(")", ",")
+        .replace("[", ",")
+        .replace("]", ",")
+        .replace(";", ",")
+    )
+    parts = [p.strip() for p in cleaned.split(",")]
+    seen: set[str] = set()
+    ingredients: list[str] = []
+    for p in parts:
+        if not p:
+            continue
+        key = p.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        ingredients.append(p)
+        if len(ingredients) >= limit:
+            break
+    return ingredients
