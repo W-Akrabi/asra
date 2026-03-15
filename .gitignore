@@ -41,3 +41,7 @@ htmlcov/
 
 # SQLite database (runtime artifact, not committed)
 *.db
+
+# Obsidian workspace state (personal IDE files)
+.obsidian/workspace.json
+.obsidian/graph.json
