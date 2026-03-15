@@ -16,14 +16,16 @@ Date: 2026-03-15
 - **HistoryPanel component** (`frontend/app/components/HistoryPanel.tsx`): expandable cards, score colour coding, timeAgo timestamps, per-dimension breakdown, `onLoad` callback hook for future embedding
 - **`/history` page** (`frontend/app/history/page.tsx`): standalone route matching existing design system, cache explanation badge for demo, dark mode toggle, link back to analyzer
 
+- **Agent rewrite** (`backend/agent.py`): replaced OpenAI native `tool_calls`/`tool_choice` with prompt-based tool calling. GPT-OSS endpoint confirmed to return `tool_calls: []` / `finish_reason: stop` on every request — it does not support the function calling API. New approach: system prompt teaches the model to output `{"action": "<tool>", "args": {...}}` as plain JSON; loop parses and dispatches; up to 2 nudges before fallback. All tools (web search, Open Food Facts, ingredient lookup, fetch_page) now actually fire.
+- **routes.http, README, cache status, History nav link** — see previous entries.
+
 ## In Progress
 
-- (nothing — frontend history panel shipped)
+- (nothing)
 
 ## Issues / Blockers
 
-- `requirements.txt` missing `openfoodfacts` package (needed by `openfood.py`) — flagged, needs fixing before submission
-- Umair's `web-search` branch uses sync tools while `search` branch uses async — architectural conflict needs resolution before merge
+- Umair's `web-search` branch (sync tools, Groq support) not yet merged — coordinate before submission
 
 ## Notes
 
