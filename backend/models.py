@@ -40,3 +40,10 @@ class AgentEvent(BaseModel):
     type: str  # "thinking" | "searching" | "reading" | "scoring" | "done" | "error"
     message: str
     data: Optional[dict] = None
+
+
+class HistoryEntry(BaseModel):
+    id: int
+    product: str
+    report: SustainabilityReport
+    timestamp: float  # Unix epoch seconds
