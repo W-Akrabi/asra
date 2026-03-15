@@ -1,3 +1,9 @@
+export interface EvidenceItem {
+  claim: string;
+  source?: string;
+  url?: string | null;
+}
+
 export interface SustainabilityReport {
   product_name: string;
   carbon_score: number;
@@ -7,10 +13,10 @@ export interface SustainabilityReport {
   overall_score: number;
   summary?: string;
   evidence?: {
-    carbon?: string[];
-    water?: string[];
-    deforestation?: string[];
-    labor?: string[];
+    carbon?: EvidenceItem[];
+    water?: EvidenceItem[];
+    deforestation?: EvidenceItem[];
+    labor?: EvidenceItem[];
   };
   alternatives?: string[];
 }

@@ -1,6 +1,7 @@
 import { X, Star } from "lucide-react";
 import { Button } from "./ui/button";
 import { LiveResearchFeed } from "./LiveResearchFeed";
+import { ResearchGraph } from "./ResearchGraph";
 import { ImpactScorecard } from "./ImpactScorecard";
 import { EvidenceSection } from "./EvidenceSection";
 import type { StreamEvent, SustainabilityReport } from "../types/ecolens";
@@ -93,9 +94,12 @@ export function ResultsOverlay({
           <div className="flex-1 overflow-y-auto no-scrollbar">
             <div className="p-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Left Column: Live Research Feed */}
-                <div className="min-h-[500px]">
-                  <LiveResearchFeed events={events} isSearching={isSearching} />
+                {/* Left Column: Live Research Feed + Force Graph */}
+                <div className="flex flex-col gap-4">
+                  <div className="h-75">
+                    <LiveResearchFeed events={events} isSearching={isSearching} />
+                  </div>
+                  <ResearchGraph events={events} isSearching={isSearching} />
                 </div>
 
                 {/* Right Column: Scorecard & Evidence */}

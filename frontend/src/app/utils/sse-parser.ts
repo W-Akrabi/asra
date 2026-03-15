@@ -26,14 +26,28 @@ type BackendReport = {
   [key: string]: unknown;
 };
 
+// Normalise dimension names so "Labour", "Labor & Ethics", etc. all resolve.
+function normDim(s: string): string {
+  return s.toLowerCase().replace("labour", "labor").replace(/[^a-z]/g, "");
+}
+
+function dimFind(name: string, dims: BackendDimension[]): BackendDimension | undefined {
+  const needle = normDim(name);
+  return dims.find((d) => normDim(d.name).startsWith(needle));
+}
+
 function dimScore(name: string, dims: BackendDimension[]): number {
-  const d = dims.find((d) => d.name.toLowerCase() === name.toLowerCase());
+  const d = dimFind(name, dims);
   return d ? Math.round(d.score * 10) : 0;
 }
 
-function dimEvidence(name: string, dims: BackendDimension[]): string[] {
-  const d = dims.find((d) => d.name.toLowerCase() === name.toLowerCase());
-  return (d?.evidence ?? []).map((e) => e.claim);
+function dimEvidence(name: string, dims: BackendDimension[]): { claim: string; source?: string; url?: string | null }[] {
+  const d = dimFind(name, dims);
+  return (d?.evidence ?? []).map((e) => ({
+    claim: e.claim,
+    source: e.source,
+    url: e.url,
+  }));
 }
 
 function normalizeReport(raw: BackendReport): BackendReport {
