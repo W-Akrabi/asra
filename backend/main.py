@@ -1,14 +1,14 @@
 import json
 import os
 from dotenv import load_dotenv
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from sse_starlette.sse import EventSourceResponse
 import uvicorn
 
 from models import AnalyzeRequest
 from agent import run_agent
-from tools import fetch_openfoodfacts
+from tools import fetch_openfoodfacts, extract_barcode, fetch_openfoodfacts_by_barcode
 import cache
 import history
 
@@ -85,6 +85,33 @@ async def openfoodfacts_search(name: str = Query(..., min_length=2)):
     Search Open Food Facts by product name.
     """
     return await fetch_openfoodfacts(name)
+
+
+@app.post("/barcode")
+async def barcode_lookup(file: UploadFile = File(...)):
+    """Decode a barcode image and look up the product in Open Food Facts."""
+    import tempfile
+    import os as _os
+
+    suffix = _os.path.splitext(file.filename or "")[1] or ".png"
+    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+        content = await file.read()
+        tmp.write(content)
+        tmp_path = tmp.name
+
+    try:
+        decoded = extract_barcode(tmp_path)
+        if not decoded.get("found"):
+            return {"found": False, "error": decoded.get("error") or "barcode_not_found"}
+        if not decoded.get("text"):
+            return {"found": False, "error": "barcode_not_found"}
+        product = await fetch_openfoodfacts_by_barcode(decoded["text"])
+        return {"found": True, "barcode": decoded, "product": product}
+    finally:
+        try:
+            _os.unlink(tmp_path)
+        except OSError:
+            pass
 
 
 if __name__ == "__main__" and not os.getenv("DEPLOYED_URL"):

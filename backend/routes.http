@@ -28,6 +28,30 @@ Accept: text/event-stream
 ### Open Food Facts search by name
 GET {{baseUrl}}/openfoodfacts/search?name=Nutella
 
+### Barcode lookup (multipart file upload)
+POST {{baseUrl}}/barcode
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="barcode.png"
+Content-Type: image/png
+
+< ./barcode_samples/roasted-peanuts.jpg
+--WebAppBoundary--
+
+### Barcode lookup (multiple barcodes should error)
+# Use an image that contains more than one barcode to trigger:
+# { "found": false, "error": "multiple_barcodes" }
+POST {{baseUrl}}/barcode
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="barcode-multi.png"
+Content-Type: image/png
+
+< ./barcode_samples/roasted-peanuts.jpg
+--WebAppBoundary--
+
 ### Get recent search history (last 20)
 GET {{baseUrl}}/history
 
