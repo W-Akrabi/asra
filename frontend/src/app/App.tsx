@@ -6,7 +6,7 @@ import { BookmarksPanel } from "./components/BookmarksPanel";
 import { ResultsOverlay } from "./components/ResultsOverlay";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
-import { Clock, BookMarked, Search, Sparkles } from "lucide-react";
+import { Clock, BookMarked, Search } from "lucide-react";
 import type { StreamEvent, SustainabilityReport, HistoryItem, BookmarkItem } from "./types/ecolens";
 import { parseSSEEvent } from "./utils/sse-parser";
 import { config } from "./config";
@@ -226,8 +226,12 @@ function AppContent() {
       {/* Top Navigation Bar */}
       <div className="relative z-10 border-b border-border/50 backdrop-blur-sm bg-background/80">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-6 w-6 text-primary" />
+          <div className="flex items-center gap-3">
+            <img
+              src="/logo.png"
+              alt="EcoLens logo"
+              className="h-8 w-8 rounded-full"
+            />
             <span className="text-xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
               EcoLens
             </span>
