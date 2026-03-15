@@ -6,7 +6,7 @@ import { BookmarksPanel } from "./components/BookmarksPanel";
 import { ResultsOverlay } from "./components/ResultsOverlay";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
-import { Clock, BookMarked, Search } from "lucide-react";
+import { Clock, BookMarked, Search, Barcode } from "lucide-react";
 import type { StreamEvent, SustainabilityReport, HistoryItem, BookmarkItem } from "./types/ecolens";
 import { parseSSEEvent } from "./utils/sse-parser";
 import { config } from "./config";
@@ -354,7 +354,8 @@ function AppContent() {
                     disabled={isSearching}
                     className="h-11 w-full rounded-xl border-border/60 bg-background/60 px-4 text-sm font-semibold text-foreground/80 hover:bg-background sm:w-auto"
                   >
-                    Scan Barcode
+                    <Barcode className="h-5 w-5" />
+                    <span className="sr-only">Scan Barcode</span>
                   </Button>
                   <Button
                     onClick={() => handleSearch()}
