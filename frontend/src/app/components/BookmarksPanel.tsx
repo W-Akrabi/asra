@@ -1,6 +1,5 @@
 import { X, BookMarked, Trash2, Star } from "lucide-react";
 import { Button } from "./ui/button";
-import { ScrollArea } from "./ui/scroll-area";
 import type { BookmarkItem } from "../types/ecolens";
 import { useEffect } from "react";
 
@@ -61,7 +60,7 @@ export function BookmarksPanel({
           </div>
 
           {/* Content */}
-          <ScrollArea className="flex-1 p-6">
+          <div className="flex-1 overflow-y-auto p-6 no-scrollbar">
             {bookmarks.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center py-12">
                 <BookMarked className="h-16 w-16 text-muted-foreground/40 mb-4" />
@@ -129,7 +128,7 @@ export function BookmarksPanel({
                 ))}
               </div>
             )}
-          </ScrollArea>
+          </div>
         </div>
       </div>
     </>
