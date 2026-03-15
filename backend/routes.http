@@ -16,5 +16,29 @@ Accept: text/event-stream
   "product": "Nutella"
 }
 
+### Analyze — re-run same product to confirm cache hit ("Loaded from cache")
+POST {{baseUrl}}/analyze
+Content-Type: application/json
+Accept: text/event-stream
+
+{
+  "product": "Nutella"
+}
+
 ### Open Food Facts search by name
 GET {{baseUrl}}/openfoodfacts/search?name=Nutella
+
+### Get recent search history (last 20)
+GET {{baseUrl}}/history
+
+### Get recent search history — custom limit
+GET {{baseUrl}}/history?limit=5
+
+### Get history for a specific product
+GET {{baseUrl}}/history/Nutella
+
+### Cache status (entry count + DB size)
+GET {{baseUrl}}/cache/status
+
+### Clear all history
+DELETE {{baseUrl}}/history

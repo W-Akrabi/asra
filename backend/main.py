@@ -54,6 +54,12 @@ async def analyze(request: AnalyzeRequest):
     return EventSourceResponse(event_generator())
 
 
+@app.get("/cache/status")
+async def cache_status():
+    """Return cache entry count, active entries, and DB size."""
+    return cache.status()
+
+
 @app.get("/history")
 async def get_history(limit: int = Query(20, ge=1, le=100)):
     """Return the most recent analysis entries, newest first."""

@@ -83,3 +83,21 @@ def purge_expired() -> int:
         _init_db(conn)
         cur = conn.execute("DELETE FROM cache WHERE expires_at < ?", (time.time(),))
         return cur.rowcount
+
+
+def status() -> dict:
+    """Return cache stats: entry count, expired count, and DB file size."""
+    now = time.time()
+    with _connect() as conn:
+        _init_db(conn)
+        total = conn.execute("SELECT COUNT(*) FROM cache").fetchone()[0]
+        expired = conn.execute(
+            "SELECT COUNT(*) FROM cache WHERE expires_at < ?", (now,)
+        ).fetchone()[0]
+    db_bytes = os.path.getsize(_DB_PATH) if os.path.exists(_DB_PATH) else 0
+    return {
+        "entries": total,
+        "expired": expired,
+        "active": total - expired,
+        "db_size_kb": round(db_bytes / 1024, 1),
+    }

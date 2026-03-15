@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts";
 
 const DIMENSIONS = ["Carbon", "Water", "Deforestation", "Labor/Ethics"] as const;
@@ -131,6 +132,12 @@ export default function Home() {
               </h1>
             </div>
             <div className="flex items-center gap-3">
+              <Link
+                href="/history"
+                className="rounded-full border border-slate-200 bg-white/80 px-3 py-1 text-xs font-medium text-slate-600 shadow-sm transition hover:border-slate-400 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-300 dark:hover:border-slate-500"
+              >
+                History
+              </Link>
               <span className="rounded-full border border-slate-200 bg-white/80 px-3 py-1 text-xs font-medium text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-300">
                 SSE Live Feed
               </span>
