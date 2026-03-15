@@ -52,7 +52,9 @@ function normalizeReport(raw: BackendReport): BackendReport {
     deforestation_score: dimScore("deforestation", dims),
     labor_score: dimScore("labor", dims),
     summary: raw.summary ?? "",
-    alternatives: raw.alternatives ?? [],
+    alternatives: (raw.alternatives ?? []).map((alt) =>
+      typeof alt === "string" ? alt : `${alt.name} by ${alt.brand} — ${alt.reason}`
+    ),
     evidence: {
       carbon: dimEvidence("carbon", dims),
       water: dimEvidence("water", dims),
