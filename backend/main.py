@@ -1,12 +1,14 @@
 import json
 import os
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from sse_starlette.sse import EventSourceResponse
+import uvicorn
 
 from models import AnalyzeRequest
 from agent import run_agent
+from tools import fetch_openfoodfacts
 
 load_dotenv()
 
@@ -36,3 +38,15 @@ async def analyze(request: AnalyzeRequest):
             yield {"data": json.dumps(event)}
 
     return EventSourceResponse(event_generator())
+
+
+@app.get("/openfoodfacts/search")
+async def openfoodfacts_search(name: str = Query(..., min_length=2)):
+    """
+    Search Open Food Facts by product name.
+    """
+    return await fetch_openfoodfacts(name)
+
+
+if __name__ == "__main__" and not os.getenv("DEPLOYED_URL"):
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
