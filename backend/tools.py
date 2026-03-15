@@ -4,6 +4,7 @@ import os
 import json
 from bs4 import BeautifulSoup
 from openfood import async_search_product
+from pyrxing import read_barcodes
 
 # --------------------------------------------------------------------------- #
 # Ingredient impact lookup table (anchor facts for the agent)
@@ -165,6 +166,69 @@ async def find_alternatives(product: str, category: str | None = None) -> dict:
         q = f"sustainable {category} alternatives to {product}"
     return await search_web(q, max_results=5)
 
+def extract_barcode(img_path: str):
+    try:
+        results = read_barcodes(img_path)
+    except Exception as e:
+        return {"found": False, "error": "invalid_image", "detail": str(e)}
+    if not results:
+        return {"found": False, "format": None, "text": None}
+    if len(results) > 1:
+        return {"found": False, "error": "multiple_barcodes"}
+    result = results[0]
+    return {"found": True, "format": result.format, "text": result.text}
+
+
+async def fetch_openfoodfacts_by_barcode(code: str) -> dict:
+    """Fetch Open Food Facts product data by barcode."""
+    base_url = os.getenv("OPENFOODFACTS_BASE_URL", "https://world.openfoodfacts.org")
+    url = f"{base_url}/api/v2/product/{code}"
+    params = {
+        "fields": ",".join(
+            [
+                "product_name",
+                "brands",
+                "categories",
+                "ingredients_text",
+                "ecoscore_grade",
+                "nutriscore_grade",
+                "packaging",
+                "countries",
+                "code",
+            ]
+        )
+    }
+    timeout = httpx.Timeout(12.0, connect=4.0)
+    headers = {
+        "User-Agent": os.getenv(
+            "OPENFOODFACTS_USER_AGENT",
+            "EcoLens/0.1 (contact: dev@example.com)",
+        )
+    }
+    if base_url.endswith(".net"):
+        headers["Authorization"] = "Basic b2ZmOm9mZg=="
+
+    async with httpx.AsyncClient(timeout=timeout) as client:
+        resp = await client.get(url, params=params, headers=headers)
+        if resp.status_code == 404:
+            return {"found": False, "code": code}
+        resp.raise_for_status()
+        data = resp.json()
+        if not isinstance(data, dict) or data.get("status") == 0:
+            return {"found": False, "code": code}
+        p = data.get("product", {}) if isinstance(data, dict) else {}
+        return {
+            "found": True,
+            "code": p.get("code", code),
+            "product_name": p.get("product_name", ""),
+            "brand": p.get("brands", "Unknown"),
+            "categories": p.get("categories", ""),
+            "ingredients_text": p.get("ingredients_text", ""),
+            "ecoscore_grade": p.get("ecoscore_grade", None),
+            "nutriscore_grade": p.get("nutriscore_grade", None),
+            "packaging": p.get("packaging", ""),
+            "countries": p.get("countries", ""),
+        }
 
 # --------------------------------------------------------------------------- #
 # Tool schemas for GPT-OSS function calling
