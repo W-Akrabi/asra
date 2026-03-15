@@ -13,10 +13,12 @@ Date: 2026-03-15
   - `GET /history/{product}` — product-specific history
   - `DELETE /history` — clear all
 - **Vault docs**: updated `data-model.md`, `api.md`, `sprint.md`, `build-log/day2.md`
+- **HistoryPanel component** (`frontend/app/components/HistoryPanel.tsx`): expandable cards, score colour coding, timeAgo timestamps, per-dimension breakdown, `onLoad` callback hook for future embedding
+- **`/history` page** (`frontend/app/history/page.tsx`): standalone route matching existing design system, cache explanation badge for demo, dark mode toggle, link back to analyzer
 
 ## In Progress
 
-- Frontend surfacing of history (not yet started — need to coordinate with Umair on page.tsx)
+- (nothing — frontend history panel shipped)
 
 ## Issues / Blockers
 
