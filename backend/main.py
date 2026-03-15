@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sse_starlette.sse import EventSourceResponse
+import uvicorn
 
 from models import AnalyzeRequest
 from agent import run_agent
@@ -36,3 +37,7 @@ async def analyze(request: AnalyzeRequest):
             yield {"data": json.dumps(event)}
 
     return EventSourceResponse(event_generator())
+
+
+if __name__ == "__main__" and not os.getenv("DEPLOYED_URL"):
+    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)

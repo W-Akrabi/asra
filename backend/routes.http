@@ -1,0 +1,13 @@
+@baseUrl = http://localhost:8000
+
+### Health check
+GET {{baseUrl}}/health
+
+### Analyze a product (SSE stream)
+POST {{baseUrl}}/analyze
+Content-Type: application/json
+Accept: text/event-stream
+
+{
+  "product": "Nutella"
+}
