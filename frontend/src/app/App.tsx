@@ -24,13 +24,16 @@ function AppContent() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [bookmarks, setBookmarks] = useState<BookmarkItem[]>([]);
   const [currentSearchId, setCurrentSearchId] = useState<string>("");
+  const [cache, setCache] = useState<Record<string, { report: SustainabilityReport; timestamp: number }>>({});
 
   // Load history and bookmarks from localStorage
   useEffect(() => {
     const savedHistory = localStorage.getItem("ecolens-history");
     const savedBookmarks = localStorage.getItem("ecolens-bookmarks");
+    const savedCache = localStorage.getItem("ecolens-cache");
     if (savedHistory) setHistory(JSON.parse(savedHistory));
     if (savedBookmarks) setBookmarks(JSON.parse(savedBookmarks));
+    if (savedCache) setCache(JSON.parse(savedCache));
   }, []);
 
   // Save history to localStorage
@@ -42,6 +45,10 @@ function AppContent() {
   useEffect(() => {
     localStorage.setItem("ecolens-bookmarks", JSON.stringify(bookmarks));
   }, [bookmarks]);
+
+  useEffect(() => {
+    localStorage.setItem("ecolens-cache", JSON.stringify(cache));
+  }, [cache]);
 
   const handleSearch = async (searchTerm?: string) => {
     const term = searchTerm || productName;
@@ -101,13 +108,19 @@ function AppContent() {
                   { type: "done", message: "Analysis complete" },
                 ]);
 
+                // Add to history
                 const historyItem: HistoryItem = {
                   id: searchId,
                   productName: term,
                   timestamp: Date.now(),
                   overallScore: reportData.overall_score,
+                  summary: reportData.summary,
                 };
                 setHistory((prev) => [historyItem, ...prev.slice(0, 49)]);
+                setCache((prev) => ({
+                  ...prev,
+                  [searchId]: { report: reportData, timestamp: Date.now() },
+                }));
               } else {
                 setEvents((prev) => [
                   ...prev,
@@ -139,9 +152,18 @@ function AppContent() {
     }
   };
 
-  const handleSelectHistoryItem = (name: string) => {
-    setProductName(name);
-    handleSearch(name);
+  const handleSelectHistoryItem = (item: HistoryItem) => {
+    setProductName(item.productName);
+    const cached = cache[item.id];
+    if (cached && Date.now() - cached.timestamp < 60 * 60 * 1000) {
+      setReport(cached.report);
+      setEvents([{ type: "done", message: "Loaded from cache" }]);
+      setShowResults(true);
+      setIsSearching(false);
+      setCurrentSearchId(item.id);
+      return;
+    }
+    handleSearch(item.productName);
   };
 
   const handleClearHistory = () => {
@@ -161,6 +183,7 @@ function AppContent() {
         productName: productName,
         timestamp: Date.now(),
         overallScore: report.overall_score,
+        summary: report.summary,
       };
       setBookmarks((prev) => [bookmarkItem, ...prev]);
     }
@@ -168,6 +191,20 @@ function AppContent() {
 
   const handleRemoveBookmark = (id: string) => {
     setBookmarks((prev) => prev.filter((b) => b.id !== id));
+  };
+
+  const handleSelectBookmarkItem = (item: BookmarkItem) => {
+    setProductName(item.productName);
+    const cached = cache[item.id];
+    if (cached && Date.now() - cached.timestamp < 60 * 60 * 1000) {
+      setReport(cached.report);
+      setEvents([{ type: "done", message: "Loaded from cache" }]);
+      setShowResults(true);
+      setIsSearching(false);
+      setCurrentSearchId(item.id);
+      return;
+    }
+    handleSearch(item.productName);
   };
 
   const isBookmarked = bookmarks.some((b) => b.id === currentSearchId);
@@ -243,7 +280,7 @@ function AppContent() {
                   value={productName}
                   onChange={(e) => setProductName(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  className="flex-1 text-lg border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                  className="flex-1 text-lg border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent"
                   disabled={isSearching}
                   autoFocus
                 />
@@ -300,7 +337,7 @@ function AppContent() {
         isOpen={showBookmarks}
         onClose={() => setShowBookmarks(false)}
         bookmarks={bookmarks}
-        onSelectItem={handleSelectHistoryItem}
+        onSelectItem={handleSelectBookmarkItem}
         onRemoveBookmark={handleRemoveBookmark}
       />
     </div>

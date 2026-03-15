@@ -29,24 +29,10 @@ const EVENT_LABELS = {
 };
 
 export function LiveResearchFeed({ events, isSearching }: LiveResearchFeedProps) {
-  const [showAllThinking, setShowAllThinking] = useState(false);
-
-  // Separate thinking events from others
-  const thinkingEvents = events.filter((e) => e.type === "thinking");
-  const otherEvents = events.filter((e) => e.type !== "thinking");
-
-  // Limit thinking events to 5 unless expanded
-  const visibleThinkingEvents = showAllThinking
-    ? thinkingEvents
-    : thinkingEvents.slice(0, 5);
-  const hasMoreThinking = thinkingEvents.length > 5;
-
-  const allVisibleEvents = [...visibleThinkingEvents, ...otherEvents].sort(
-    (a, b) => {
-      // Maintain original order from events array
-      return events.indexOf(a) - events.indexOf(b);
-    }
-  );
+  const [showAllEvents, setShowAllEvents] = useState(false);
+  const maxVisible = 5;
+  const hiddenCount = Math.max(0, events.length - maxVisible);
+  const visibleEvents = showAllEvents ? events : events.slice(-maxVisible);
 
   return (
     <Card className="p-6 h-full flex flex-col bg-card/50 backdrop-blur-sm">
@@ -56,9 +42,9 @@ export function LiveResearchFeed({ events, isSearching }: LiveResearchFeedProps)
       </div>
 
       <div className="flex-1 overflow-y-auto space-y-3 pr-2">
-        {allVisibleEvents.map((event, idx) => (
+        {visibleEvents.map((event, idx) => (
           <div
-            key={idx}
+            key={`${event.type}-${idx}`}
             className="flex items-start gap-3 p-3 rounded-lg bg-accent/50 border border-border animate-in slide-in-from-left duration-300"
           >
             <span className="text-2xl">{EVENT_ICONS[event.type]}</span>
@@ -73,23 +59,23 @@ export function LiveResearchFeed({ events, isSearching }: LiveResearchFeedProps)
           </div>
         ))}
 
-        {hasMoreThinking && !showAllThinking && (
+        {hiddenCount > 0 && !showAllEvents && (
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setShowAllThinking(true)}
+            onClick={() => setShowAllEvents(true)}
             className="w-full"
           >
             <ChevronDown className="w-4 h-4 mr-2" />
-            Show {thinkingEvents.length - 5} more thinking events
+            Show {hiddenCount} earlier steps
           </Button>
         )}
 
-        {hasMoreThinking && showAllThinking && (
+        {hiddenCount > 0 && showAllEvents && (
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setShowAllThinking(false)}
+            onClick={() => setShowAllEvents(false)}
             className="w-full"
           >
             <ChevronUp className="w-4 h-4 mr-2" />

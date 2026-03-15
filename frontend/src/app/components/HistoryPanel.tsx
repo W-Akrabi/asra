@@ -8,7 +8,7 @@ interface HistoryPanelProps {
   isOpen: boolean;
   onClose: () => void;
   history: HistoryItem[];
-  onSelectItem: (productName: string) => void;
+  onSelectItem: (item: HistoryItem) => void;
   onClearHistory: () => void;
 }
 
@@ -79,7 +79,7 @@ export function HistoryPanel({
                     key={item.id}
                     className="group p-4 rounded-lg border border-border bg-card hover:bg-accent/50 transition-colors cursor-pointer"
                     onClick={() => {
-                      onSelectItem(item.productName);
+                      onSelectItem(item);
                       onClose();
                     }}
                   >
@@ -89,6 +89,11 @@ export function HistoryPanel({
                         <p className="text-sm text-muted-foreground">
                           {new Date(item.timestamp).toLocaleString()}
                         </p>
+                        {item.summary && (
+                          <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
+                            {item.summary}
+                          </p>
+                        )}
                       </div>
                       {item.overallScore !== undefined && (
                         <div className="ml-4">

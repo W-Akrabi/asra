@@ -1,6 +1,5 @@
 import { X, Star } from "lucide-react";
 import { Button } from "./ui/button";
-import { ScrollArea } from "./ui/scroll-area";
 import { LiveResearchFeed } from "./LiveResearchFeed";
 import { ImpactScorecard } from "./ImpactScorecard";
 import { EvidenceSection } from "./EvidenceSection";
@@ -91,7 +90,7 @@ export function ResultsOverlay({
           </div>
 
           {/* Content */}
-          <ScrollArea className="flex-1">
+          <div className="flex-1 overflow-y-auto no-scrollbar">
             <div className="p-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Left Column: Live Research Feed */}
@@ -109,7 +108,7 @@ export function ResultsOverlay({
                 </div>
               </div>
             </div>
-          </ScrollArea>
+          </div>
         </div>
       </div>
     </>

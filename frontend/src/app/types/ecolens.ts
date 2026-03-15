@@ -45,6 +45,7 @@ export interface HistoryItem {
   productName: string;
   timestamp: number;
   overallScore?: number;
+  summary?: string;
 }
 
 export interface BookmarkItem {
@@ -52,4 +53,5 @@ export interface BookmarkItem {
   productName: string;
   timestamp: number;
   overallScore?: number;
+  summary?: string;
 }

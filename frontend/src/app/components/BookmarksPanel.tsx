@@ -8,7 +8,7 @@ interface BookmarksPanelProps {
   isOpen: boolean;
   onClose: () => void;
   bookmarks: BookmarkItem[];
-  onSelectItem: (productName: string) => void;
+  onSelectItem: (item: BookmarkItem) => void;
   onRemoveBookmark: (id: string) => void;
 }
 
@@ -83,7 +83,7 @@ export function BookmarksPanel({
                       <div
                         className="flex-1 cursor-pointer"
                         onClick={() => {
-                          onSelectItem(item.productName);
+                          onSelectItem(item);
                           onClose();
                         }}
                       >
@@ -94,6 +94,11 @@ export function BookmarksPanel({
                         <p className="text-sm text-muted-foreground">
                           {new Date(item.timestamp).toLocaleDateString()}
                         </p>
+                        {item.summary && (
+                          <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
+                            {item.summary}
+                          </p>
+                        )}
                       </div>
                       <div className="flex items-center gap-3 ml-4">
                         {item.overallScore !== undefined && (
