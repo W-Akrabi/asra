@@ -10,30 +10,82 @@ from openfood import async_search_product
 # --------------------------------------------------------------------------- #
 
 INGREDIENT_IMPACT: dict[str, dict] = {
-    "beef":         {"carbon": "very_high", "water": "very_high", "deforestation": "high",        "labor": "low"},
-    "lamb":         {"carbon": "very_high", "water": "high",      "deforestation": "medium",       "labor": "low"},
-    "pork":         {"carbon": "high",      "water": "medium",    "deforestation": "low",          "labor": "low"},
-    "chicken":      {"carbon": "medium",    "water": "medium",    "deforestation": "low",          "labor": "medium"},
-    "dairy":        {"carbon": "high",      "water": "high",      "deforestation": "low",          "labor": "low"},
-    "cheese":       {"carbon": "high",      "water": "high",      "deforestation": "low",          "labor": "low"},
-    "milk":         {"carbon": "medium",    "water": "high",      "deforestation": "low",          "labor": "low"},
-    "palm oil":     {"carbon": "medium",    "water": "medium",    "deforestation": "very_high",    "labor": "high"},
-    "soy":          {"carbon": "medium",    "water": "medium",    "deforestation": "high",         "labor": "medium"},
-    "cocoa":        {"carbon": "medium",    "water": "high",      "deforestation": "high",         "labor": "very_high"},
-    "chocolate":    {"carbon": "medium",    "water": "high",      "deforestation": "high",         "labor": "very_high"},
-    "coffee":       {"carbon": "medium",    "water": "very_high", "deforestation": "medium",       "labor": "high"},
-    "almonds":      {"carbon": "low",       "water": "very_high", "deforestation": "low",          "labor": "medium"},
-    "avocado":      {"carbon": "medium",    "water": "very_high", "deforestation": "medium",       "labor": "medium"},
-    "rice":         {"carbon": "high",      "water": "very_high", "deforestation": "low",          "labor": "medium"},
-    "wheat":        {"carbon": "low",       "water": "medium",    "deforestation": "low",          "labor": "low"},
-    "sugar":        {"carbon": "low",       "water": "high",      "deforestation": "medium",       "labor": "high"},
-    "cotton":       {"carbon": "medium",    "water": "very_high", "deforestation": "low",          "labor": "very_high"},
-    "polyester":    {"carbon": "high",      "water": "low",       "deforestation": "low",          "labor": "high"},
-    "leather":      {"carbon": "very_high", "water": "very_high", "deforestation": "high",         "labor": "medium"},
-    "plastic":      {"carbon": "high",      "water": "low",       "deforestation": "low",          "labor": "low"},
-    "hazelnuts":    {"carbon": "low",       "water": "medium",    "deforestation": "low",          "labor": "medium"},
-    "shrimp":       {"carbon": "very_high", "water": "medium",    "deforestation": "high",         "labor": "very_high"},
-    "salmon":       {"carbon": "medium",    "water": "medium",    "deforestation": "low",          "labor": "medium"},
+    # ── Meat & fish ──────────────────────────────────────────────────────────
+    "beef":         {"carbon": "very_high", "water": "very_high", "deforestation": "high",      "labor": "low"},
+    "boeuf":        {"carbon": "very_high", "water": "very_high", "deforestation": "high",      "labor": "low"},   # FR
+    "lamb":         {"carbon": "very_high", "water": "high",      "deforestation": "medium",    "labor": "low"},
+    "agneau":       {"carbon": "very_high", "water": "high",      "deforestation": "medium",    "labor": "low"},   # FR
+    "pork":         {"carbon": "high",      "water": "medium",    "deforestation": "low",       "labor": "low"},
+    "porc":         {"carbon": "high",      "water": "medium",    "deforestation": "low",       "labor": "low"},   # FR
+    "chicken":      {"carbon": "medium",    "water": "medium",    "deforestation": "low",       "labor": "medium"},
+    "poulet":       {"carbon": "medium",    "water": "medium",    "deforestation": "low",       "labor": "medium"},# FR
+    "shrimp":       {"carbon": "very_high", "water": "medium",    "deforestation": "high",      "labor": "very_high"},
+    "crevette":     {"carbon": "very_high", "water": "medium",    "deforestation": "high",      "labor": "very_high"},# FR
+    "salmon":       {"carbon": "medium",    "water": "medium",    "deforestation": "low",       "labor": "medium"},
+    "saumon":       {"carbon": "medium",    "water": "medium",    "deforestation": "low",       "labor": "medium"}, # FR
+    "tuna":         {"carbon": "medium",    "water": "low",       "deforestation": "low",       "labor": "high"},
+    "thon":         {"carbon": "medium",    "water": "low",       "deforestation": "low",       "labor": "high"},   # FR
+    # ── Dairy & eggs ─────────────────────────────────────────────────────────
+    "dairy":        {"carbon": "high",      "water": "high",      "deforestation": "low",       "labor": "low"},
+    "cheese":       {"carbon": "high",      "water": "high",      "deforestation": "low",       "labor": "low"},
+    "fromage":      {"carbon": "high",      "water": "high",      "deforestation": "low",       "labor": "low"},   # FR
+    "milk":         {"carbon": "medium",    "water": "high",      "deforestation": "low",       "labor": "low"},
+    "lait":         {"carbon": "medium",    "water": "high",      "deforestation": "low",       "labor": "low"},   # FR
+    "butter":       {"carbon": "high",      "water": "high",      "deforestation": "low",       "labor": "low"},
+    "beurre":       {"carbon": "high",      "water": "high",      "deforestation": "low",       "labor": "low"},   # FR
+    "cream":        {"carbon": "medium",    "water": "high",      "deforestation": "low",       "labor": "low"},
+    "crème":        {"carbon": "medium",    "water": "high",      "deforestation": "low",       "labor": "low"},   # FR
+    "egg":          {"carbon": "low",       "water": "medium",    "deforestation": "low",       "labor": "low"},
+    "eggs":         {"carbon": "low",       "water": "medium",    "deforestation": "low",       "labor": "low"},
+    "oeuf":         {"carbon": "low",       "water": "medium",    "deforestation": "low",       "labor": "low"},   # FR
+    "oeufs":        {"carbon": "low",       "water": "medium",    "deforestation": "low",       "labor": "low"},   # FR
+    # ── Grains & starches ────────────────────────────────────────────────────
+    "wheat":        {"carbon": "low",       "water": "medium",    "deforestation": "low",       "labor": "low"},
+    "blé":          {"carbon": "low",       "water": "medium",    "deforestation": "low",       "labor": "low"},   # FR
+    "farine":       {"carbon": "low",       "water": "medium",    "deforestation": "low",       "labor": "low"},   # FR flour
+    "flour":        {"carbon": "low",       "water": "medium",    "deforestation": "low",       "labor": "low"},
+    "rice":         {"carbon": "high",      "water": "very_high", "deforestation": "low",       "labor": "medium"},
+    "riz":          {"carbon": "high",      "water": "very_high", "deforestation": "low",       "labor": "medium"}, # FR
+    "corn":         {"carbon": "low",       "water": "medium",    "deforestation": "low",       "labor": "medium"},
+    "maïs":         {"carbon": "low",       "water": "medium",    "deforestation": "low",       "labor": "medium"}, # FR
+    "oat":          {"carbon": "low",       "water": "low",       "deforestation": "low",       "labor": "low"},
+    "avoine":       {"carbon": "low",       "water": "low",       "deforestation": "low",       "labor": "low"},   # FR
+    "potato":       {"carbon": "low",       "water": "low",       "deforestation": "low",       "labor": "low"},
+    "pomme de terre":{"carbon":"low",       "water": "low",       "deforestation": "low",       "labor": "low"},   # FR
+    # ── Oils & fats ──────────────────────────────────────────────────────────
+    "palm oil":     {"carbon": "medium",    "water": "medium",    "deforestation": "very_high", "labor": "high"},
+    "huile de palme":{"carbon":"medium",    "water": "medium",    "deforestation": "very_high", "labor": "high"},  # FR
+    "huile":        {"carbon": "medium",    "water": "medium",    "deforestation": "medium",    "labor": "medium"},# FR oil (generic)
+    "soy":          {"carbon": "medium",    "water": "medium",    "deforestation": "high",      "labor": "medium"},
+    "soja":         {"carbon": "medium",    "water": "medium",    "deforestation": "high",      "labor": "medium"}, # FR
+    "sunflower":    {"carbon": "low",       "water": "medium",    "deforestation": "low",       "labor": "low"},
+    "tournesol":    {"carbon": "low",       "water": "medium",    "deforestation": "low",       "labor": "low"},   # FR
+    "canola":       {"carbon": "low",       "water": "medium",    "deforestation": "low",       "labor": "low"},
+    "rapeseed":     {"carbon": "low",       "water": "medium",    "deforestation": "low",       "labor": "low"},
+    "colza":        {"carbon": "low",       "water": "medium",    "deforestation": "low",       "labor": "low"},   # FR
+    # ── Sugar & sweeteners ───────────────────────────────────────────────────
+    "sugar":        {"carbon": "low",       "water": "high",      "deforestation": "medium",    "labor": "high"},
+    "sucre":        {"carbon": "low",       "water": "high",      "deforestation": "medium",    "labor": "high"},  # FR
+    # ── Cocoa, coffee, nuts ──────────────────────────────────────────────────
+    "cocoa":        {"carbon": "medium",    "water": "high",      "deforestation": "high",      "labor": "very_high"},
+    "cacao":        {"carbon": "medium",    "water": "high",      "deforestation": "high",      "labor": "very_high"},# FR
+    "chocolate":    {"carbon": "medium",    "water": "high",      "deforestation": "high",      "labor": "very_high"},
+    "chocolat":     {"carbon": "medium",    "water": "high",      "deforestation": "high",      "labor": "very_high"},# FR
+    "coffee":       {"carbon": "medium",    "water": "very_high", "deforestation": "medium",    "labor": "high"},
+    "café":         {"carbon": "medium",    "water": "very_high", "deforestation": "medium",    "labor": "high"},  # FR
+    "almonds":      {"carbon": "low",       "water": "very_high", "deforestation": "low",       "labor": "medium"},
+    "amande":       {"carbon": "low",       "water": "very_high", "deforestation": "low",       "labor": "medium"}, # FR
+    "hazelnuts":    {"carbon": "low",       "water": "medium",    "deforestation": "low",       "labor": "medium"},
+    "noisette":     {"carbon": "low",       "water": "medium",    "deforestation": "low",       "labor": "medium"}, # FR
+    "avocado":      {"carbon": "medium",    "water": "very_high", "deforestation": "medium",    "labor": "medium"},
+    "avocat":       {"carbon": "medium",    "water": "very_high", "deforestation": "medium",    "labor": "medium"}, # FR
+    # ── Textiles & synthetics ────────────────────────────────────────────────
+    "cotton":       {"carbon": "medium",    "water": "very_high", "deforestation": "low",       "labor": "very_high"},
+    "coton":        {"carbon": "medium",    "water": "very_high", "deforestation": "low",       "labor": "very_high"},# FR
+    "polyester":    {"carbon": "high",      "water": "low",       "deforestation": "low",       "labor": "high"},
+    "leather":      {"carbon": "very_high", "water": "very_high", "deforestation": "high",      "labor": "medium"},
+    "cuir":         {"carbon": "very_high", "water": "very_high", "deforestation": "high",      "labor": "medium"}, # FR
+    "plastic":      {"carbon": "high",      "water": "low",       "deforestation": "low",       "labor": "low"},
 }
 
 

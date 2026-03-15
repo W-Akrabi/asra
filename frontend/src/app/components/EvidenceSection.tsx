@@ -1,6 +1,7 @@
+import { ExternalLink } from "lucide-react";
 import { Card } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import type { SustainabilityReport } from "../types/ecolens";
+import type { SustainabilityReport, EvidenceItem } from "../types/ecolens";
 
 interface EvidenceSectionProps {
   report: SustainabilityReport | null;
@@ -28,29 +29,48 @@ export function EvidenceSection({ report }: EvidenceSectionProps) {
             <TabsTrigger value="labor">Labor</TabsTrigger>
           </TabsList>
 
-          {["carbon", "water", "deforestation", "labor"].map((category) => (
-            <TabsContent key={category} value={category} className="mt-4">
-              <div className="space-y-2">
-                {report.evidence?.[category as keyof typeof report.evidence]?.map(
-                  (item, idx) => (
+          {["carbon", "water", "deforestation", "labor"].map((category) => {
+            const items = report.evidence?.[category as keyof typeof report.evidence] ?? [];
+            return (
+              <TabsContent key={category} value={category} className="mt-4">
+                <div className="space-y-3">
+                  {items.map((item: EvidenceItem, idx: number) => (
                     <div
                       key={idx}
-                      className="p-3 bg-accent/50 rounded-lg border border-border"
+                      className="p-3 bg-accent/50 rounded-lg border border-border space-y-1.5"
                     >
-                      <p className="text-sm text-foreground">{item}</p>
+                      <p className="text-sm text-foreground leading-snug">{item.claim}</p>
+                      {(item.source || item.url) && (
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {item.source && (
+                            <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                              {item.source}
+                            </span>
+                          )}
+                          {item.url && (
+                            <a
+                              href={item.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                            >
+                              <ExternalLink className="w-3 h-3" />
+                              View source
+                            </a>
+                          )}
+                        </div>
+                      )}
                     </div>
-                  )
-                )}
-                {(!report.evidence?.[category as keyof typeof report.evidence] ||
-                  report.evidence[category as keyof typeof report.evidence]
-                    ?.length === 0) && (
-                  <p className="text-sm text-muted-foreground text-center py-4">
-                    No evidence available
-                  </p>
-                )}
-              </div>
-            </TabsContent>
-          ))}
+                  ))}
+                  {items.length === 0 && (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      No evidence available
+                    </p>
+                  )}
+                </div>
+              </TabsContent>
+            );
+          })}
         </Tabs>
       )}
 

@@ -1,10 +1,10 @@
 import json
 import os
 from collections.abc import AsyncGenerator
-from openai import OpenAI
+from openai import AsyncOpenAI
 from tools import execute_tool, identify_product, lookup_ingredient_impact
 
-client = OpenAI(
+client = AsyncOpenAI(
     api_key=os.getenv("OPENAI_API_KEY", "test"),
     base_url=os.getenv("GPT_OSS_BASE_URL", "https://handles-virtual-creating-introduced.trycloudflare.com/v1"),
 )
@@ -81,14 +81,25 @@ When you have enough evidence, output ONLY this JSON (no "action" key):
       "name": "Carbon",
       "score": 0.0,
       "confidence": "high|medium|low|insufficient_data",
-      "evidence": [
-        {
-          "claim": "string",
-          "source": "string",
-          "url": "string or null",
-          "confidence": 0.0
-        }
-      ]
+      "evidence": [{"claim": "string", "source": "string", "url": "string or null"}]
+    },
+    {
+      "name": "Water",
+      "score": 0.0,
+      "confidence": "high|medium|low|insufficient_data",
+      "evidence": [{"claim": "string", "source": "string", "url": "string or null"}]
+    },
+    {
+      "name": "Deforestation",
+      "score": 0.0,
+      "confidence": "high|medium|low|insufficient_data",
+      "evidence": [{"claim": "string", "source": "string", "url": "string or null"}]
+    },
+    {
+      "name": "Labor",
+      "score": 0.0,
+      "confidence": "high|medium|low|insufficient_data",
+      "evidence": [{"claim": "string", "source": "string", "url": "string or null"}]
     }
   ],
   "alternatives": [
@@ -112,6 +123,12 @@ _NUDGE = (
     "or the final report JSON. No other text."
 )
 
+_FORCE_FINALIZE = (
+    "You have called enough tools and gathered sufficient evidence. "
+    "Do NOT call any more tools. "
+    "Output ONLY the final report JSON right now — no explanation, no markdown, just the JSON object."
+)
+
 
 async def run_agent(product: str) -> AsyncGenerator[dict, None]:
     """
@@ -127,14 +144,15 @@ async def run_agent(product: str) -> AsyncGenerator[dict, None]:
 
     yield {"type": "thinking", "message": f"Starting research on: {product}"}
 
-    max_iterations = 14
+    max_iterations = 18
     nudges = 0
+    tool_calls_made = 0
 
-    for _ in range(max_iterations):
-        response = client.chat.completions.create(
+    for iteration in range(max_iterations):
+        response = await client.chat.completions.create(
             model=os.getenv("LLM_MODEL", "openai/gpt-oss-120b"),
             messages=messages,
-            max_tokens=4096,
+            max_tokens=6000,
         )
 
         content = (response.choices[0].message.content or "").strip()
@@ -145,6 +163,7 @@ async def run_agent(product: str) -> AsyncGenerator[dict, None]:
         # ── Tool call ──────────────────────────────────────────────────────
         if isinstance(parsed, dict) and "action" in parsed:
             nudges = 0
+            tool_calls_made += 1
             tool_name = parsed.get("action", "")
             arguments = parsed.get("args", {})
             if not isinstance(arguments, dict):
@@ -161,6 +180,12 @@ async def run_agent(product: str) -> AsyncGenerator[dict, None]:
                 "role": "user",
                 "content": f"Tool result ({tool_name}): {result}",
             })
+
+            # After 8 tool calls push the model to finalize
+            if tool_calls_made >= 8:
+                messages.append({"role": "user", "content": _FORCE_FINALIZE})
+                yield {"type": "scoring", "message": "Scoring all dimensions"}
+
             continue
 
         # ── Final report ───────────────────────────────────────────────────
